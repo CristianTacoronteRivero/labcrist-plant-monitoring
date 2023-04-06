@@ -8,5 +8,5 @@ void commandLED(int rojo, int verde, int azul, int pinRojo, int pinVerde, int pi
 }
 
 void turnOffLED(int pinRojo, int pinVerde, int pinAzul) {
-  commandLED(0, 0, 0, pinRojo, pinVerde, pinAzul); // Usa constantes aquí como una alternativa
+  commandLED(0, 0, 0, pinRojo, pinVerde, pinAzul);
 }

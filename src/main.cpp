@@ -83,21 +83,27 @@ int checkConnection(String ip) {
 }
 
 void setup() {
-  Serial.begin(9600); // baudios en 9600 para que funcione correctamente el Serial Monitor
+  // configura el serial monitor
+  Serial.begin(9600);
 
-  pinMode(LED_BUILTIN, OUTPUT); // configuracion del LED del nodemcu
+  // configura el LED del nodemcu para que se pueda escribir
+  pinMode(LED_BUILTIN, OUTPUT);
 
-  pinMode(pinRojo, OUTPUT); // configuracion del LED RGB
+  // configura el LED RGB para que se pueda escribir
+  pinMode(pinRojo, OUTPUT);
   pinMode(pinAzul, OUTPUT);
   pinMode(pinVerde, OUTPUT);
 
+  // apaga desde un inicio el LED RGB
   turnOffLED(pinRojo, pinVerde, pinAzul);
 
-  dht.begin(); // inicia el sensor DHT11
+  // inicia el sensor DHT11
+  dht.begin();
 
-  setup_wifi(); // conecta a la red WiFi
-  // aqui se configura la direccion IP del servidor MQTT y su puerto
-  // y de esta forma se sabe a donde se tienen que enviar los datos
+  // conecta a la red wifi local
+  setup_wifi();
+
+  // configura el servidor mqtt para enviar datos
   client.setServer(mqtt_server, mqtt_port);
 }
 
@@ -116,6 +122,7 @@ void loop() {
   commandLED(0, 20, 0, pinRojo, pinVerde, pinAzul);
   client.loop();
 
+  turnOffLED(pinRojo, pinVerde, pinAzul);
   commandLED(1023, 0, 1023, pinRojo, pinVerde, pinAzul);
   digitalWrite(LED_BUILTIN, LOW);
   float temperature = dht.readTemperature(); // lee la temperatura del sensor
