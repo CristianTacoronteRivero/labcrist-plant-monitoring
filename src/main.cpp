@@ -72,15 +72,17 @@ void loop() {
   turnOffLED(pinRojo, pinVerde, pinAzul);
   commandLED(1023, 0, 1023, pinRojo, pinVerde, pinAzul);
   digitalWrite(LED_BUILTIN, LOW);
-  float temperature = dht.readTemperature(); // lee la temperatura del sensor
+  // lee la temperatura del sensor
+  float temperature = dht.readTemperature();
   digitalWrite(LED_BUILTIN, HIGH);
 
   digitalWrite(LED_BUILTIN, LOW);
-  float humidity = dht.readHumidity(); // lee la humedad del sensor
+   // lee la humedad del sensor
+  float humidity = dht.readHumidity();
   digitalWrite(LED_BUILTIN, HIGH);
   commandLED(0, 20, 0, pinRojo, pinVerde, pinAzul);
 
-  // uso el formato json para enviar datos
+  // usa el formato json para enviar datos
   StaticJsonDocument<64> doc;
   doc["temperatura"] = temperature;
   doc["humedad"] = humidity;
@@ -88,10 +90,9 @@ void loop() {
   String jsonString;
   serializeJson(doc, jsonString);
 
-  // se espera que sea un puntero y no un valor. Un puntero es una direccion
-  // de un valor de otra variable almancenada en la RAM. la funcion .publish necesita un puntero, por eso
-  // se usa .c_str()
+  // publica los datos mediante protocolo MQTT
   client.publish(mqtt_topic, (char*)jsonString.c_str());
 
-  delay(3000); // espera 30 segundos
+  // espera 30 segundos
+  delay(3000);
 }
