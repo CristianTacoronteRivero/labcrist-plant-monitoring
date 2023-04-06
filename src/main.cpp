@@ -1,61 +1,52 @@
+/*
+///////////////// IMPORTACION DE MODULOS \\\\\\\\\\\\\\\\\
+*/
+#include <Arduino.h>
 #include <ArduinoJson.h>
-#include <ESP8266WiFi.h> // permite la conexion via WiFi
+// #include <ESP8266WiFi.h> // permite la conexion via WiFi
 #include <PubSubClient.h> // ofrece una interfaz MQTT
 #include <Adafruit_Sensor.h> //permite leer sensores a traves de distintas plataformas y librerias
 #include <DHT.h> // permite leer datos del sensor DHT11
-//#include <DHT_U.h> // y esta es la del DHT22
-#include <ESP8266Ping.h>
 
 #include "led/rgb.h"
+#include "wifi/wifi.h"
 
-// configura los detalles de la conexión WiFi
-const char* ssid = "LabCristjz"; // lo ponemos de esta forma y no char X porque es una variable fija
+/*
+///////////////// DECLARACION DE VARIABLES \\\\\\\\\\\\\\\\\
+*/
+// configura la conexión WiFi //
+const char* ssid = "LabCristjz";
 const char* password = "CasaArribaCrist";
+const char* ip = "192.168.1.23";
+const char* gateway = "192.168.1.1";
+const char* subnet = "255.255.255.0";
 
-// configura los detalles de la conexión MQTT
+// configura la conexión MQTT //
 const char* mqtt_server = "192.168.1.70";
 const int mqtt_port = 1883;
 const char* mqtt_topic = "nodemcu_1/dht11";
+WiFiClient espClient;
+PubSubClient client(espClient);
 
-#define DHTPIN D4     // pin de datos del sensor DHT11 conectado al pin D3/GPIO0
-#define DHTTYPE DHT11   // tipo de sensor DHT11
+// configura los pines del sensor DHT11 //
+#define DHTTYPE DHT11
+#define DHTPIN D4
+DHT dht(DHTPIN, DHTTYPE);
 
-// defino los pines del LED RGB
+// configura los pines del LED RGB //
 #define pinRojo D1
 #define pinAzul D2
 #define pinVerde D3
 
-// configura el cliente MQTT, de esta forma se puede enviar datos via MQTT  a traves de la red
-WiFiClient espClient; // iniccializa un obejto llamado espClient que se conecta al WifFi
-PubSubClient client(espClient); // y esto permite la publicacion de datos MQTT
-
-DHT dht(DHTPIN, DHTTYPE);
-
-void setup_wifi() {
-  delay(10); // pequena demora para que el node se inicie
-
-  // configuro IP fija para este nodecmu
-  IPAddress ip(192, 168, 1, 23);  // Dirección IP deseada
-  IPAddress gateway(192, 168, 1, 1);  // Dirección IP del router
-  IPAddress subnet(255, 255, 255, 0);  // Máscara de subred
-  WiFi.config(ip, gateway, subnet);
-
-  WiFi.begin(ssid, password); // conecta a la red WiFi
-
-  // WL_CONNECTED variable de la libreria ESP8266WiFi.h que devuelve el estado de la red
-  while (WiFi.status() != WL_CONNECTED) { // si no se ha conectado...
-    Serial.print("Esperando conexion...");
-    delay(500);
-  }
-}
-
+/*
+///////////////// DECLARACION DE FUNCIONES \\\\\\\\\\\\\\\\\
+*/
 void reconnect() { // funcion que se encarga de reconectarse de nuevo...
   // loop hasta que nos podamos conectar al servidor MQTT
   while (!client.connected()) { // si no se encuentra conectado ...PubSubClient client(espClient);
     Serial.print("Intentando reconectar...");
     // intenta conectar al servidor MQTT
     if (client.connect("nodemcu-client")) {
-      Serial.print("Reconexion exitosa...");
       // nos hemos conectado al servidor MQTT
     } else {
       // error al conectar, esperamos y lo intentamos de nuevo
@@ -64,30 +55,9 @@ void reconnect() { // funcion que se encarga de reconectarse de nuevo...
   }
 }
 
-int checkConnection(String ip) {
-  int result = 0; // variable donde se guardará el resultado del ping
-
-  IPAddress address;
-  if (!address.fromString(ip)) {
-    Serial.println("Invalid IP address.");
-    result = -1;
-  }
-  if (Ping.ping(address)) {
-    Serial.println("Connection successful.");
-    result = 1;
-  } else {
-    Serial.println("Connection failed.");
-    result = 0;
-  }
-  return result;
-}
-
 void setup() {
   // configura el serial monitor
   Serial.begin(9600);
-
-  // configura el LED del nodemcu para que se pueda escribir
-  pinMode(LED_BUILTIN, OUTPUT);
 
   // configura el LED RGB para que se pueda escribir
   pinMode(pinRojo, OUTPUT);
@@ -97,11 +67,14 @@ void setup() {
   // apaga desde un inicio el LED RGB
   turnOffLED(pinRojo, pinVerde, pinAzul);
 
+  // configura el LED del nodemcu para que se pueda escribir
+  pinMode(LED_BUILTIN, OUTPUT);
+
   // inicia el sensor DHT11
   dht.begin();
 
   // conecta a la red wifi local
-  setup_wifi();
+  setup_wifi(ssid, password, ip, gateway, subnet);
 
   // configura el servidor mqtt para enviar datos
   client.setServer(mqtt_server, mqtt_port);
@@ -137,7 +110,6 @@ void loop() {
   StaticJsonDocument<64> doc;
   doc["temperatura"] = temperature;
   doc["humedad"] = humidity;
-  // doc["conexion_broker"] = checkConnection(mqtt_server);
 
   String jsonString;
   serializeJson(doc, jsonString);
