@@ -1,4 +1,5 @@
 #include <ESP8266WiFi.h>
+#include "main.h"
 
 void setup_wifi(const char* ssid, const char* password, const char* ip_str, const char* gateway_str, const char* subnet_str) {
     // demora en ms para dar tiempo a que se inicien los procesos

@@ -1,3 +1,4 @@
+#include "main.h"
 #include "rgb.h"
 #include <Arduino.h>
 

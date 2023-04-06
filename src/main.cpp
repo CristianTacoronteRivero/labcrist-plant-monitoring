@@ -1,18 +1,18 @@
 /*
 ///////////////// IMPORTACION DE MODULOS \\\\\\\\\\\\\\\\\
 */
-#include <Arduino.h>
 #include <ArduinoJson.h>
-// #include <ESP8266WiFi.h> // permite la conexion via WiFi
 #include <PubSubClient.h> // ofrece una interfaz MQTT
 #include <Adafruit_Sensor.h> //permite leer sensores a traves de distintas plataformas y librerias
 #include <DHT.h> // permite leer datos del sensor DHT11
 
+#include "main.h"
 #include "led/rgb.h"
 #include "wifi/wifi.h"
+#include "mqtt/mqtt.h"
 
 /*
-///////////////// DECLARACION DE VARIABLES \\\\\\\\\\\\\\\\\
+///////////////// ASIGNACION DE VALORES \\\\\\\\\\\\\\\\\
 */
 // configura la conexión WiFi //
 const char* ssid = "LabCristjz";
@@ -25,36 +25,20 @@ const char* subnet = "255.255.255.0";
 const char* mqtt_server = "192.168.1.70";
 const int mqtt_port = 1883;
 const char* mqtt_topic = "nodemcu_1/dht11";
-WiFiClient espClient;
-PubSubClient client(espClient);
 
 // configura los pines del sensor DHT11 //
-#define DHTTYPE DHT11
-#define DHTPIN D4
+const int DHTTYPE = DHT11;
+const int DHTPIN = D4;
 DHT dht(DHTPIN, DHTTYPE);
 
 // configura los pines del LED RGB //
-#define pinRojo D1
-#define pinAzul D2
-#define pinVerde D3
+const int pinRojo = D1;
+const int pinAzul = D2;
+const int pinVerde = D3;
 
 /*
 ///////////////// DECLARACION DE FUNCIONES \\\\\\\\\\\\\\\\\
 */
-void reconnect() { // funcion que se encarga de reconectarse de nuevo...
-  // loop hasta que nos podamos conectar al servidor MQTT
-  while (!client.connected()) { // si no se encuentra conectado ...PubSubClient client(espClient);
-    Serial.print("Intentando reconectar...");
-    // intenta conectar al servidor MQTT
-    if (client.connect("nodemcu-client")) {
-      // nos hemos conectado al servidor MQTT
-    } else {
-      // error al conectar, esperamos y lo intentamos de nuevo
-      delay(5000);
-    }
-  }
-}
-
 void setup() {
   // configura el serial monitor
   Serial.begin(9600);
@@ -77,23 +61,13 @@ void setup() {
   setup_wifi(ssid, password, ip, gateway, subnet);
 
   // configura el servidor mqtt para enviar datos
-  client.setServer(mqtt_server, mqtt_port);
+  mqtt_init(mqtt_server, mqtt_port);
 }
 
 void loop() {
 
   // comprueba si esta conectado o no
-  if (!client.connected()) {
-    // si no lo esta, reconecta
-    turnOffLED(pinRojo, pinVerde, pinAzul);
-    commandLED(1023, 0, 0, pinRojo, pinVerde, pinAzul);
-    reconnect();
-  }
-  // una vez comprobada la conexion, se ejecuta esta funcion que se encarga de matentener
-  // la conexion establecida y procesar los mensajes
-  turnOffLED(pinRojo, pinVerde, pinAzul);
-  commandLED(0, 20, 0, pinRojo, pinVerde, pinAzul);
-  client.loop();
+  mqtt_is_connected();
 
   turnOffLED(pinRojo, pinVerde, pinAzul);
   commandLED(1023, 0, 1023, pinRojo, pinVerde, pinAzul);
