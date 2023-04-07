@@ -94,5 +94,5 @@ void loop() {
   client.publish(mqtt_topic, (char*)jsonString.c_str());
 
   // espera 30 segundos
-  delay(3000);
+  delay(30000);
 }
