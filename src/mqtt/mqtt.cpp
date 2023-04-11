@@ -12,12 +12,12 @@ void mqtt_init(const char* mqtt_server, const int mqtt_port) {
 }
 
 void mqtt_reconnect() {
-    Serial.print("Reconnecting to MQTT broker...");
+    // Serial.print("Reconnecting to MQTT broker...");
     // Inicia bucle hasta que se conecte con el broker
     while (!client.connected()) {
         // intenta conectar al servidor MQTT
         if (client.connect("nodemcu-client")) {
-            Serial.println("Connected to MQTT broker");
+            // Serial.println("Connected to MQTT broker");
         } else {
             Serial.print("Failed to connect to MQTT broker, retrying in 5 seconds...");
             delay(5000);

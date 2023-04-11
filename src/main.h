@@ -20,6 +20,10 @@ extern const char* mqtt_topic;
 extern const int DHTTYPE;
 extern const int DHTPIN;
 
+// configura los pines del sensor LDR //
+extern const int pinLDR;
+extern const int photoResistence;
+
 // configura los pines del LED RGB //
 extern const int pinRojo;
 extern const int pinAzul;
