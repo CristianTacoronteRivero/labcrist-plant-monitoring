@@ -1,0 +1,9 @@
+2023-06-09 23:08:03,838 - root - INFO - *************************************¡Inicio de procedimiento!**************************************
+2023-06-09 23:10:11,752 - root - INFO - *************************************¡Inicio de procedimiento!**************************************
+2023-06-09 23:10:11,760 - root - INFO - Variables especificadas:
+        				hostnames: ['10.141.188.149'],
+        				database: check_devices,
+        				table: data_check_devices,
+        				interval: 30,
+        				timeout: 2
+2023-06-09 23:10:11,760 - root - INFO - Establecimiento de conexion satisfactoria con la base de datos

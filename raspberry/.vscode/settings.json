@@ -1,0 +1,44 @@
+{
+    "python.formatting.provider": "black",
+    "python.formatting.blackArgs": ["--line-length", "79"],
+    "editor.formatOnSave": true,
+    "python.linting.pylintEnabled": true,
+    "python.linting.pylintArgs": ["--disable=E0401"],
+    "python.linting.enabled": true,
+    "python.autoComplete.addBrackets": true,
+    "python.linting.autopep8Enabled": true,
+    "python.linting.autopep8Args": ["--max-line-length", "79"],
+    "python.linting.isortEnabled": true,
+    "python.linting.isortArgs": ["--line-length", "79", "--multi-line", "3", "--trailing-comma"],
+    "python.linting.mypyEnabled": false,
+    "python.formatting.provider": "none",
+    "python.formatting.blackArgs": [
+      "--line-length",
+      "79"
+    ],
+    "editor.formatOnSave": true,
+    "python.linting.pylintEnabled": true,
+    "python.linting.pylintArgs": [
+      "--disable=E0401"
+    ],
+    "python.linting.enabled": true,
+    "python.autoComplete.addBrackets": true,
+    "python.linting.autopep8Enabled": true,
+    "python.linting.autopep8Args": [
+      "--max-line-length",
+      "79"
+    ],
+    "python.linting.isortEnabled": true,
+    "python.linting.isortArgs": [
+      "--line-length",
+      "79",
+      "--multi-line",
+      "3",
+      "--trailing-comma"
+    ],
+    "python.linting.mypyEnabled": false,
+    "[python]": {
+      "editor.defaultFormatter": "ms-python.black-formatter"
+    },
+    "python.analysis.completeFunctionParens": true,
+  }

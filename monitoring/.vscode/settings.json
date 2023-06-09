@@ -1,5 +1,5 @@
 {
     "docify.commentService.programmingLanguage": "cpp",
     "docify.commentService.docstringFormat": "Doxygen",
-    "docify.commentService.autoTranslationService": "Spanish"
+    "docify.commentService.autoTranslationService": "Spanish",
 }
