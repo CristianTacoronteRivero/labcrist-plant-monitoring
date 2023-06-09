@@ -15,7 +15,7 @@ from apscheduler.triggers.cron import CronTrigger
 path_main = os.path.dirname(os.path.abspath(__file__))
 
 # Establece las variables de entorno
-# sys.path.append('/home/ctacoronte/Escritorio/GitHub/raspberry-micgridblue')
+sys.path.append('/home/ctacoronte/Escritorio/GitHub/raspberry-micgridblue')
 os.environ["PATH_MGB"] = path_main
 
 # Agrega la ruta al PATH

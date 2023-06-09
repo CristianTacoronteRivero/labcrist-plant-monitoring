@@ -82,12 +82,12 @@ if __name__ == "__main__":
     config = ConfigParser()
     config.read(fn.search_path_file("main.conf"))
 
-    # Obtener los valores de la sección [main/devices]
-    INTERVAL = config.getint("main/devices", "interval", fallback=30)
-    DATABASE = config.get("main/devices", "database", fallback='check_devices')
-    TABLE = config.get("main/devices", "table", fallback='data_check_devices')
-    HOSTNAMES = config.get("main/devices", "hostnames").split(",")
-    TIMEOUT = config.getint("main/devices", "timeout", fallback=2)
+    # Obtener los valores de la sección [DEVICES]
+    INTERVAL = config.getint("DEVICES", "interval")
+    DATABASE = config.get("DEVICES", "database")
+    TABLE = config.get("DEVICES", "table")
+    HOSTNAMES = config.get("DEVICES", "hostnames").split(",")
+    TIMEOUT = config.getint("DEVICES", "timeout")
 
     logging.info(
         f"""Variables especificadas:

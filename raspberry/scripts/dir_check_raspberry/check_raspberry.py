@@ -53,11 +53,11 @@ if __name__ == "__main__":
     config = ConfigParser()
     config.read(fn.search_path_file("main.conf"))
 
-    # Obtener los valores de la sección [main/raspberry]
-    INTERVAL = config.getint("main/raspberry", "interval", fallback=30)
-    DATABASE = config.get("main/raspberry", "database", fallback="raspberry")
-    TABLE = config.get("main/raspberry", "table", fallback="data_raspberry")
-    TIMEOUT = config.getint("main/raspberry", "timeout", fallback=100)
+    # Obtener los valores de la sección [RASPBERRY]
+    INTERVAL = config.getint("RASPBERRY", "interval")
+    DATABASE = config.get("RASPBERRY", "database")
+    TABLE = config.get("RASPBERRY", "table")
+    TIMEOUT = config.getint("RASPBERRY", "timeout")
 
     logging.info(
         f"""Variables especificadas:
