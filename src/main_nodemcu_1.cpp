@@ -32,9 +32,9 @@ const int DHTPIN = D4;
 DHT dht(DHTPIN, DHTTYPE);
 
 // configura los pines del LED RGB //
-const int pinRojo = D1;
-const int pinAzul = D2;
-const int pinVerde = D3;
+const int pinRojo = D5;
+const int pinAzul = D6;
+const int pinVerde = D7;
 
 /*
 ///////////////// DECLARACION DE FUNCIONES \\\\\\\\\\\\\\\\\
@@ -62,6 +62,7 @@ void setup() {
 
   // configura el servidor mqtt para enviar datos
   mqtt_init(mqtt_server, mqtt_port);
+
 }
 
 void loop() {
