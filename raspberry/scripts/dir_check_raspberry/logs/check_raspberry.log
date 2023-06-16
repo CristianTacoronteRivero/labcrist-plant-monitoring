@@ -1,8 +1,0 @@
-2023-06-09 23:08:03,836 - root - INFO - *************************************¡Inicio de procedimiento!**************************************
-2023-06-09 23:10:11,748 - root - INFO - *************************************¡Inicio de procedimiento!**************************************
-2023-06-09 23:10:11,756 - root - INFO - Variables especificadas:
-        				database: raspberry,
-        				table: data_raspberry,
-        				interval: 30,
-        				timeout: 2
-2023-06-09 23:10:11,757 - root - INFO - Establecimiento de conexion satisfactoria con la base de datos

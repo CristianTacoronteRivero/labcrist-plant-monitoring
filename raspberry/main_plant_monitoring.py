@@ -58,7 +58,7 @@ def run_check_raspberry() -> None:
         logging.info(f"Proceso run_check_devices lanzado con PID = {process.pid}. ¡ERROR!")
 
 def run_mqtt_sub() -> None:
-    path = fn.search_path_file("mqtt_sub.py")
+    path = fn.search_path_file(f"mqtt_sub.py")
     command = ["python3", path]
     process = subprocess.Popen(command)
     if isinstance(process.poll(), type(None)):
@@ -104,13 +104,12 @@ if __name__ == "__main__":
 
     check_devices = multiprocessing.Process(target=run_check_devices)
 
-    # shelly_1 = multiprocessing.Process(target=run_mqtt_sub)
+    nodemcu_1 = multiprocessing.Process(target=run_mqtt_sub)
 
     # lanzo los procesos asincronos
     check_raspberry.start()
     check_devices.start()
-    # shelly_1.start()
-
+    nodemcu_1.start()
 
     ###############################################
     #             PROCESOS SINCRONOS              #

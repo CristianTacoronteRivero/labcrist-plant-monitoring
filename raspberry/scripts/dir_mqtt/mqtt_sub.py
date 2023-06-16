@@ -5,6 +5,7 @@ almacenarlo en InfluxDB
 import logging
 import os
 import sys
+import json
 from configparser import ConfigParser
 from time import sleep
 
@@ -14,6 +15,7 @@ from paho.mqtt.properties import MQTTException
 from requests.exceptions import ConnectionError as RequestsConnectionError
 
 # Agrega la ruta al PYTHONPATH
+sys.path.append("/home/labcrist/labcrist-plant-monitoring/raspberry")
 sys.path.append("/home/ctacoronte/Escritorio/GitHub/raspberry-micgridblue")
 sys.path.append(os.environ.get("PATH_MGB"))
 
@@ -90,17 +92,37 @@ class SubMqtt:
         :type msg: paho.mqtt.client.MQTTMessage
         :return: None
         """
-        # Almacenar valor y topic
-        value = float(msg.payload.decode())
-        topic = msg.topic.split("/")[-1]
+        try:
+            # Obtener el diccionario construido por el nodo
+            # '{"temperatura":29.79999924,"humedad":48}' -> {"temperatura":29.79999924,"humedad":48}
+            value = json.loads(msg.payload.decode())
+            # Forzar a que sean un tipo de variable en concreto para evitar futuros errores
+            for clave, valor in value.items():
+                value[clave] = round(float(valor),1)
 
-        # Construir diccionario
-        points = [{"measurement": TABLE, "fields": {topic: value}}]
+            measurement = msg.topic.split("/")[0]
+            tag_sensor = msg.topic.split("/")[1]
 
-        # Registrar datos en base datos local InfluxDB
-        self.client_influx.write_points(points=points, time_precision="s")
+            # Construir diccionario
+            points = [
+                {
+                    "measurement": measurement,
+                    "tags": {
+                        "sensor": tag_sensor,
+                    },
+                    "fields": value
+                }
+            ]
 
-        logging.info(points)
+            # Registrar datos en base datos local InfluxDB
+            self.client_influx.write_points(points=points, time_precision="s")
+
+            logging.info(points)
+        except Exception as e:
+            line_error, data_error = fn.traceback_logging()
+            logging.error(
+                f"Error en la función _on_message: {e}, linea {line_error} -> {data_error}"
+            )
 
     def start_broker(self):
         """Inicia el broker para escuchar los topics subscritos
@@ -173,13 +195,13 @@ if __name__ == "__main__":
     config = ConfigParser()
     config.read(fn.search_path_file("main.conf"))
 
-    # Obtener los valores de la sección [main/shelly_1]
-    DATABASE = config.get("main/shelly_1", "database", fallback="shelly")
-    TIMEOUT = config.getint("main/shelly_1", "timeout", fallback=100)
-    TOPIC = config.get("main/shelly_1", "topics", fallback="").split(",")
-    TABLE = config.get("main/shelly_1", "table", fallback=TOPIC[0].split("/")[1])
-    BROKER = config.get("main/shelly_1", "broker", fallback="localhost")
-    QOS = config.getint("main/shelly_1", "qos", fallback=0)
+    # Obtener los valores de la sección [NODEMCU1]
+    DATABASE = config.get("NODEMCU1", "database")
+    TIMEOUT = config.getint("NODEMCU1", "timeout")
+    TOPIC = config.get("NODEMCU1", "topic").split(",")
+    TABLE = config.get("NODEMCU1", "table")
+    BROKER = config.get("NODEMCU1", "broker")
+    QOS = config.getint("NODEMCU1", "qos")
 
     logging.info(
         f"""Variables especificadas:

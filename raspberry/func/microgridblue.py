@@ -107,41 +107,71 @@ def search_path_file(name_file: str, path_folder: str = os.getcwd()) -> str:
         return ruta_absoluta[0]
 
 
-def create_logging(name_file: str, path_folder: str = os.getcwd(), run_function: bool = True):
+# def create_logging(name_file: str, path_folder: str = os.getcwd(), run_function: bool = True):
+#     """Funcion que crea y configura los registros para un archivo determinado
+
+#     :param name_file: nombre del fichero
+#     :type name_file: str
+#     :param path_folder: path el cual se empieza a buscar el archivo, por defecto es os.getcwd()
+#     :type path_folder: str, opcional
+#     """
+#     # obtengo el nombre del fichero que crea el logging
+#     # obtengo su path
+#     path_file = search_path_file(name_file)
+#     # construyo el path final donde se supone que debe de estar la carpeta logs
+#     path_dir_logs = f"{path_file.replace(name_file, '')}logs"
+#     # si no existe...
+#     if not os.path.exists(path_dir_logs):
+#         os.mkdir(path_dir_logs) # creo la carpeta
+#     path_logging = f"{path_dir_logs}/{name_file.replace('.py','')}.log"
+
+#     if not os.path.exists(path_logging) or run_function:
+#         # creo el handler para el archivo
+#         logging_handler = TimedRotatingFileHandler(
+#             filename=path_logging,
+#             when="D",  # diario
+#             interval=1,  # se rota 1 archivo al dia
+#             backupCount=7,  # quiero ver siempre los ultimos 7 dias
+#         )
+#         # le agrego un sufijo al handler para diferenciar el de cada dia
+#         logging_handler.suffix = "%Y%m%d.log"
+
+#         # cofnguro el archivo .log
+#         logging.basicConfig(
+#             level=logging.INFO,
+#             format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+#             handlers=[logging_handler],
+#         )
+
+def create_logging(name_file: str):
     """Funcion que crea y configura los registros para un archivo determinado
 
     :param name_file: nombre del fichero
     :type name_file: str
-    :param path_folder: path el cual se empieza a buscar el archivo, por defecto es os.getcwd()
-    :type path_folder: str, opcional
     """
-    # obtengo el nombre del fichero que crea el logging
-    # obtengo su path
+    # Obtener el path del fichero que crea el logging
     path_file = search_path_file(name_file)
-    # construyo el path final donde se supone que debe de estar la carpeta logs
+    # construir el path final donde debe de estar la carpeta logs
     path_dir_logs = f"{path_file.replace(name_file, '')}logs"
     # si no existe...
     if not os.path.exists(path_dir_logs):
         os.mkdir(path_dir_logs) # creo la carpeta
-    path_logging = f"{path_dir_logs}/{name_file.replace('.py','')}.log"
 
-    if not os.path.exists(path_logging) or run_function:
-        # creo el handler para el archivo
-        logging_handler = TimedRotatingFileHandler(
-            filename=path_logging,
-            when="D",  # diario
-            interval=1,  # se rota 1 archivo al dia
-            backupCount=7,  # quiero ver siempre los ultimos 7 dias
-        )
-        # le agrego un sufijo al handler para diferenciar el de cada dia
-        logging_handler.suffix = "%Y%m%d.log"
+    # Crear path del fichero .log
+    # Añadir la fecha al nombre del archivo
+    date_str = datetime.now().strftime("%Y_%m_%d")
+    log_filename = f"{date_str}_{name_file.replace('.py','')}.log"
+    path_logging = f"{path_dir_logs}/{log_filename}"
 
-        # cofnguro el archivo .log
-        logging.basicConfig(
-            level=logging.INFO,
-            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-            handlers=[logging_handler],
-        )
+    # creo el handler para el archivo
+    logging_handler = logging.FileHandler(filename=path_logging)
+
+    # configurar el archivo .log
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        handlers=[logging_handler],
+    )
 
 def traceback_logging():
     trace = traceback.format_exc().splitlines()
