@@ -80,3 +80,38 @@ services:
     volumes:
     - /var/run/docker.sock:/var/run/docker.sock
     - ./volumes/portainer-ce/data:/data
+
+  wireguard:
+    image: linuxserver/wireguard:latest
+    container_name: wireguard
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Atlantic/Canary
+      - SERVERULR=auto
+      - PEERS=peers1,peers2
+      - PEERDNS=auto
+      - ALLOWEDIPS=0.0.0.0/0
+      - LOG_CONFS=true
+    volumes:
+      - ./volumes/wireguard/config:/wireguard/config
+      - /lib/modules:/lib/modules
+    ports:
+      - 51820:51820/udp
+    restart: unless-stopped
+
+  duckdns:
+    image: lscr.io/linuxserver/duckdns:latest
+    container_name: duckdns
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - SUBDOMAINS=labcrist
+      - TOKEN=${DUCKDNS_TOKEN}
+      - LOG_FILE=true
+    volumes:
+      - ./volumes/duckdns/config:/duckdns/config
+    restart: unless-stopped
