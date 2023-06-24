@@ -21,7 +21,7 @@ unsigned long tiempoAnterior2 = 0;
 const unsigned long intervalo2 = 10000;
 
 // Define el pin analógico al que está conectado el sensor de humedad
-const int pinHumedadSuelo = A0;
+// const int pinHumedadSuelo = A0;
 
 /*
 ///////////////// DECLARACION DE FUNCIONES \\\\\\\\\\\\\\\\\
@@ -31,7 +31,7 @@ void setup() {
   Serial.begin(9600);
 
   // configura el LED del nodemcu para que se pueda escribir
-  pinMode(LED_BUILTIN, OUTPUT);
+  // pinMode(LED_BUILTIN, OUTPUT);
 
   // conecta a la red wifi local
   setup_wifi(ssid, password, ip, gateway, subnet);
@@ -39,14 +39,15 @@ void setup() {
 
 void loop() {
   // Lectura de la humedad del suelo
-  int humedad = analogRead(pinHumedadSuelo);
+  // int humedad = analogRead(pinHumedadSuelo);
 
   // Mapea el valor leído a un rango de humedad
-  float humedadPorcentaje = map(humedad, 0, 1023, 0, 100);
+  // float humedadPorcentaje = map(humedad, 0, 1023, 0, 100);
 
   // Imprime la lectura de la humedad del suelo en el monitor serial
   Serial.print("Nivel de humedad del suelo: ");
-  Serial.print(humedadPorcentaje);
+  // Serial.print(humedadPorcentaje);
+  Serial.print("NaN");
   Serial.println("%");
 
   if (millis() - tiempoAnterior2 >= intervalo2) {

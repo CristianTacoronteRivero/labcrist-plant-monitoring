@@ -5,13 +5,23 @@ networks:
     driver: bridge
     ipam:
       driver: default
-  nextcloud:
-    driver: bridge
-    internal: true
-    ipam:
-      driver: default
 
 services:
+
+  volume_creator:
+    container_name: volume_creator
+    image: busybox
+    command: >
+      sh -c "mkdir -p
+      ./volumes/grafana
+      ./volumes/mosquitto
+      ./volumes/influxdb
+      ./volumes/portainer-ce
+      ./volumes/wireguard
+      ./volumes/duckdns"
+    volumes:
+    - ./volumes:/volumes
+
   grafana:
     container_name: grafana
     image: grafana/grafana
@@ -32,6 +42,8 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
+    depends_on:
+    - volume_creator
 
   influxdb:
     container_name: influxdb
@@ -54,6 +66,8 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
+    depends_on:
+    - volume_creator
 
   mosquitto:
     container_name: mosquitto
@@ -64,10 +78,12 @@ services:
     ports:
     - "1883:1883"
     volumes:
-    - ./volumes/mosquitto/config:/mosquitto/config
+    - ./conf/mosquitto.conf:/mosquitto/config/mosquitto.conf
     - ./volumes/mosquitto/data:/mosquitto/data
     - ./volumes/mosquitto/log:/mosquitto/log
     - ./volumes/mosquitto/pwfile:/mosquitto/pwfile
+    depends_on:
+    - volume_creator
 
   portainer-ce:
     container_name: portainer-ce
@@ -80,6 +96,8 @@ services:
     volumes:
     - /var/run/docker.sock:/var/run/docker.sock
     - ./volumes/portainer-ce/data:/data
+    depends_on:
+    - volume_creator
 
   wireguard:
     image: linuxserver/wireguard:latest
@@ -101,6 +119,8 @@ services:
     ports:
       - 51820:51820/udp
     restart: unless-stopped
+    depends_on:
+    - volume_creator
 
   duckdns:
     image: lscr.io/linuxserver/duckdns:latest
@@ -115,3 +135,5 @@ services:
     volumes:
       - ./volumes/duckdns/config:/duckdns/config
     restart: unless-stopped
+    depends_on:
+    - volume_creator

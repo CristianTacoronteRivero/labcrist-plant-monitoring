@@ -5,9 +5,7 @@
 main.conf
 *.log
 *.db
-/docker/volumes/*/*
-!/docker/volumes/mosquitto/*
-!.gitkeep
+/docker/volumes/*/data/
 
 
 # Byte-compiled / optimized / DLL files

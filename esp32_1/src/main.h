@@ -34,6 +34,6 @@ extern unsigned long tiempoAnterior2;
 extern const unsigned long intervalo2;
 
 // configura el sensor de humedad del suelo
-extern const int pinHumedadSuelo
+extern const int pinHumedadSuelo;
 
 #endif /* MAIN_H */
