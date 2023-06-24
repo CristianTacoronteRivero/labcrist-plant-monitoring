@@ -5,7 +5,7 @@
 main.conf
 *.log
 *.db
-/docker/volumes/*/data/
+/docker/volumes/*/*
 
 
 # Byte-compiled / optimized / DLL files
