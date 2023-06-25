@@ -17,9 +17,26 @@ services:
       ./volumes/influxdb
       ./volumes/portainer-ce
       ./volumes/wireguard
-      ./volumes/duckdns"
+      ./volumes/duckdns
+      ./volumes/prometheus"
     volumes:
     - ./volumes:/volumes
+
+  node_exporter:
+    container_name: node_exporter
+    image: prom/node-exporter
+    ports:
+      - 9100:9100
+
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus
+    ports:
+      - 9090:9090
+    volumes:
+      - ./config/prometheus:/etc/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
 
   grafana:
     container_name: grafana
@@ -33,6 +50,8 @@ services:
     - GF_PATHS_DATA=/var/lib/grafana
     - GF_PATHS_LOGS=/var/log/grafana
     volumes:
+    - ./config/grafana/dashboards:/var/lib/grafana/dashboards
+    - ./config/grafana/provisioning:/etc/grafana/provisioning
     - ./volumes/grafana/data:/var/lib/grafana
     - ./volumes/grafana/log:/var/log/grafana
     healthcheck:

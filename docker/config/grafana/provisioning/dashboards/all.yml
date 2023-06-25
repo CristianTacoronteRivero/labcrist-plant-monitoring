@@ -1,0 +1,11 @@
+apiVersion: 1
+
+providers:
+  - name: 'Dashboard provider'
+    folder: 'dashboards'
+    type: file
+    disableDeletion: false
+    editable: false
+    options:
+    # path donde se encuentran los .json
+      path: /var/lib/grafana/dashboards
