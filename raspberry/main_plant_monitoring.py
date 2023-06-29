@@ -107,7 +107,7 @@ if __name__ == "__main__":
     nodemcu_1 = multiprocessing.Process(target=run_mqtt_sub)
 
     # lanzo los procesos asincronos
-    check_raspberry.start()
+    # check_raspberry.start()
     check_devices.start()
     nodemcu_1.start()
 

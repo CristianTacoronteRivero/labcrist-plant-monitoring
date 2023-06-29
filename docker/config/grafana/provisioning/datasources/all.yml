@@ -9,12 +9,29 @@ datasources:
     jsonData:
       timeInterval: "30s"
 
-## EJEMPLO BASE DE DATOS INFLUXDB
-  # - name: NombreBaseDeDatosInfluxDB
-  #   type: influxdb
-  #   access: proxy
-  #   url: http://influxdb:8086
-  #   database: NombreBaseDeDatos
-  #   editable: true
-  #   jsonData:
-  #     timeInterval: "30s"
+  - name: MyDatasourceMqttSub
+    type: influxdb
+    access: proxy
+    url: http://influxdb:8086
+    database: mqtt_sub
+    editable: true
+    jsonData:
+      timeInterval: "30s"
+
+  - name: MyDatasourceCheckDevices
+    type: influxdb
+    access: proxy
+    url: http://influxdb:8086
+    database: check_devices
+    editable: true
+    jsonData:
+      timeInterval: "30s"
+
+  - name: MyDatasourceEsios
+    type: influxdb
+    access: proxy
+    url: http://influxdb:8086
+    database: esios
+    editable: true
+    jsonData:
+      timeInterval: "30s"
