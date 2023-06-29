@@ -5,7 +5,7 @@ providers:
     folder: 'dashboards'
     type: file
     disableDeletion: false
-    editable: false
+    editable: true
     options:
     # path donde se encuentran los .json
       path: /var/lib/grafana/dashboards

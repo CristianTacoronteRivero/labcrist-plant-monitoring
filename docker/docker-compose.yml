@@ -7,6 +7,24 @@ networks:
       driver: default
 
 services:
+  node_exporter:
+    container_name: node_exporter
+    image: prom/node-exporter
+    ports:
+      - "9100:9100"
+    command:
+      - --path.procfs=/host/proc
+      - --path.sysfs=/host/sys
+      - --path.rootfs=/host
+      - --collector.filesystem.ignored-mount-points
+      - ^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+      - /:/host:ro,rslave
+    restart: unless-stopped
+
   volume_creator:
     container_name: volume_creator
     image: busybox
@@ -15,33 +33,51 @@ services:
       ./volumes/grafana
       ./volumes/mosquitto/config
       ./volumes/influxdb
-      ./volumes/portainer-ce
-      ./volumes/wireguard
-      ./volumes/duckdns
-      ./volumes/prometheus"
+      ./volumes/prometheus
+      ./config/grafana/provisioning/dashboards
+      ./config/grafana/provisioning/datasources"
     volumes:
     - ./volumes:/volumes
 
-  node_exporter:
-    container_name: node_exporter
-    image: prom/node-exporter
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.47.1
+    container_name: cadvisor
+    privileged: true
     ports:
-      - 9100:9100
+      - 8081:8080
+    devices:
+      - /dev/kmsg
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+      - /etc/machine-id:/etc/machine-id:ro
+    restart: unless-stopped
 
   prometheus:
     container_name: prometheus
     image: prom/prometheus
     ports:
-      - 9090:9090
+      - "9090:9090"
     volumes:
-      - ./config/prometheus:/etc/prometheus
+      - ./volumes/prometheus:/etc/prometheus
+      - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     command:
-      - --config.file=/etc/prometheus/prometheus.yml
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9090/-/healthy || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
 
   grafana:
     container_name: grafana
     image: grafana/grafana
-    restart: unless-stopped
     user: "0"
     ports:
     - "3000:3000"
@@ -62,11 +98,11 @@ services:
       start_period: 30s
     depends_on:
     - volume_creator
+    restart: unless-stopped
 
   influxdb:
     container_name: influxdb
     image: "influxdb:1.8"
-    restart: unless-stopped
     ports:
     - "8086:8086"
     environment:
@@ -86,11 +122,11 @@ services:
       start_period: 30s
     depends_on:
     - volume_creator
+    restart: unless-stopped
 
   mosquitto:
     container_name: mosquitto
     image: eclipse-mosquitto:latest
-    restart: unless-stopped
     environment:
     - TZ=Etc/UTC
     ports:
@@ -102,20 +138,7 @@ services:
     - ./volumes/mosquitto/pwfile:/mosquitto/pwfile
     depends_on:
     - volume_creator
-
-  portainer-ce:
-    container_name: portainer-ce
-    image: portainer/portainer-ce
     restart: unless-stopped
-    ports:
-    - "8000:8000"
-    - "9000:9000"
-    - "9443:9443"
-    volumes:
-    - /var/run/docker.sock:/var/run/docker.sock
-    - ./volumes/portainer-ce/data:/data
-    depends_on:
-    - volume_creator
 
   wireguard:
     image: linuxserver/wireguard:latest
