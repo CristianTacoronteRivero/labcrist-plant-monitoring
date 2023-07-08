@@ -34,6 +34,7 @@ services:
       ./volumes/mosquitto/config
       ./volumes/influxdb
       ./volumes/prometheus
+      ./volumes/postgres
       ./config/grafana/provisioning/dashboards
       ./config/grafana/provisioning/datasources"
     volumes:
@@ -70,14 +71,7 @@ services:
       - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9090/-/healthy || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
     restart: unless-stopped
-
 
   grafana:
     container_name: grafana
