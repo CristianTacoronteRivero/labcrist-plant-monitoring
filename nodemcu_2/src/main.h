@@ -29,11 +29,4 @@ extern const int pinRojo;
 extern const int pinAzul;
 extern const int pinVerde;
 
-// configura el tiempo para medir la calidad de la señal en dB
-extern unsigned long tiempoAnterior2;
-extern const unsigned long intervalo2;
-
-// configura el sensor de humedad del suelo
-extern const int pinHumedadSuelo
-
 #endif /* MAIN_H */
