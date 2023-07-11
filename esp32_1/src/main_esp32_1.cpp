@@ -162,5 +162,5 @@ void loop() {
   }
 
   // Retardo al final del loop para reducir el consumo de energía
-  delay(5000);
+  delay(30000);
 }
