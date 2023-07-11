@@ -76,7 +76,7 @@ void loop() {
   // lee la temperatura del sensor
   float temperature = dht.readTemperature();
 
-   // lee la humedad del sensor
+  // lee la humedad del sensor
   float humidity = dht.readHumidity();
   digitalWrite(LED_BUILTIN, HIGH);
   commandLED(0, 20, 0, pinRojo, pinVerde, pinAzul);

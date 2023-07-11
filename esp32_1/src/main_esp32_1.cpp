@@ -13,7 +13,7 @@
 #include <DallasTemperature.h>
 
 #include "main.h"
-#include "wifi/wifi.h"
+#include "led/rgb.h"
 #include "wifi/wifi.h"
 #include "mqtt/mqtt.h"
 
@@ -40,15 +40,20 @@ unsigned long tiempoAnterior2 = 0;
 const unsigned long intervalo2 = 10000;
 
 // Pin analógico conectado al sensor de humedad del suelo (ejemplo: GPIO32)
-const int analogPin = 33;
+const int analogPin = 35;
 // Calibracion del sensor capacitivo: Aire-Agua
-const int HumedityMin = 998;
+const int HumedityMin = 990;
 const int Humeditymax = 2870;
 
 // Pin de datos de la sonda DS18B20
-#define ONE_WIRE_BUS 32
+#define ONE_WIRE_BUS 33
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
+
+// configura los pines del sensor DHT11 //
+const int DHTTYPE = DHT11;
+const int DHTPIN = 32;
+DHT dht(DHTPIN, DHTTYPE);
 
 // configura los pines del LED RGB //
 const int pinRojo = 23;
@@ -62,8 +67,19 @@ void setup() {
   // Configurar serial monitor
   Serial.begin(9600);
 
+  // configura el LED RGB para que se pueda escribir
+  pinMode(pinRojo, OUTPUT);
+  pinMode(pinAzul, OUTPUT);
+  pinMode(pinVerde, OUTPUT);
+
+  // apaga desde un inicio el LED RGB
+  turnOffLED(pinRojo, pinVerde, pinAzul);
+
   // Iniciar servicio sonda de temperatura
   sensors.begin();
+
+  // inicia el sensor DHT11
+  dht.begin();
 
   // Conectar a la red wifi local
   setup_wifi(ssid, password, ip, gateway, subnet);
@@ -74,35 +90,51 @@ void setup() {
 
 void loop() {
 
-  // comprueba si esta conectado o no
+  // Comprobar conexion MQTT
   mqtt_is_connected();
+
+  turnOffLED(pinRojo, pinVerde, pinAzul);
+  commandLED(1023, 0, 1023, pinRojo, pinVerde, pinAzul);
+  // Leer temperatura del sensor
+  float temperatureDHT = dht.readTemperature();
+
+  // Leer humedad del sensor
+  float humidityDHT = dht.readHumidity();
 
   // Lectura de la humedad del suelo
   int sensorValue = analogRead(analogPin);
-  int levelHumedity = 100 - map(sensorValue, HumedityMin, Humeditymax, 0, 100);
+  int humidityCapacitor = 100 - map(sensorValue, HumedityMin, Humeditymax, 0, 100);
   // Conversión a voltaje (rango de 0 a 3.3V)
   float voltage = sensorValue * (3.3 / 4095.0);
 
   // Lectura de la temperatura del suelo
   sensors.requestTemperatures();
-  float temperatureCelsius = sensors.getTempCByIndex(0);
-  // Convierte el valor analógico en tensión (para ESP32, el rango es de 0 a 4095)
+  float temperatureProbe = sensors.getTempCByIndex(0);
+  commandLED(0, 20, 0, pinRojo, pinVerde, pinAzul);
 
-  Serial.print("Temperatura: ");
-  Serial.print(temperatureCelsius);
+  Serial.print("Temperatura sonda DS18B20: ");
+  Serial.print(temperatureProbe);
   Serial.println(" °C");
 
-  Serial.print("Sensor value: ");
-  Serial.print(levelHumedity);
+  Serial.print("Temperatura DHT11: ");
+  Serial.print(temperatureDHT);
+  Serial.print(" °C, Humedad DHT11: ");
+  Serial.print(humidityDHT);
+  Serial.println(" %");
+
+  Serial.print("% humedad: ");
+  Serial.print(humidityCapacitor);
   Serial.print("%");
-  Serial.print(", Voltage: ");
+  Serial.print(", Voltaje: ");
   Serial.print(voltage, 2);
   Serial.println("V");
 
   // usa el formato json para enviar datos
   StaticJsonDocument<64> params;
-  params["temperatura"] = temperatureCelsius;
-  params["humedad"] = levelHumedity;
+  params["temperatura_sonda"] = temperatureProbe;
+  params["temperatura_dht"] = temperatureDHT;
+  params["humedad_capacitor"] = humidityCapacitor;
+  params["humedad_dht"] = humidityDHT;
 
   String jsonStringParams;
   serializeJson(params, jsonStringParams);
@@ -130,5 +162,5 @@ void loop() {
   }
 
   // Retardo al final del loop para reducir el consumo de energía
-  delay(1000);
+  delay(5000);
 }
