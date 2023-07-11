@@ -195,13 +195,13 @@ if __name__ == "__main__":
     config = ConfigParser()
     config.read(fn.search_path_file("main.conf"))
 
-    # Obtener los valores de la sección [NODEMCU1]
-    DATABASE = config.get("NODEMCU1", "database")
-    TIMEOUT = config.getint("NODEMCU1", "timeout")
-    TOPIC = config.get("NODEMCU1", "topic").split(",")
-    TABLE = config.get("NODEMCU1", "table")
-    BROKER = config.get("NODEMCU1", "broker")
-    QOS = config.getint("NODEMCU1", "qos")
+    # Obtener los valores de la sección [MQTT]
+    DATABASE = config.get("MQTT", "database")
+    TIMEOUT = config.getint("MQTT", "timeout")
+    TOPIC = config.get("MQTT", "topic").split(",")
+    TABLE = config.get("MQTT", "table")
+    BROKER = config.get("MQTT", "broker")
+    QOS = config.getint("MQTT", "qos")
 
     logging.info(
         f"""Variables especificadas:
