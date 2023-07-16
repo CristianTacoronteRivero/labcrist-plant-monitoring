@@ -24,17 +24,30 @@ const char* subnet = "255.255.255.0";
 // configura la conexión MQTT //
 const char* mqtt_server = "192.168.1.70";
 const int mqtt_port = 1883;
-const char* mqtt_topic = "nodemcu_1/dht11";
+const char* mqtt_topic_params = "nodemcu_1/params";
+const char* mqtt_topic_coverage = "nodemcu_1/coverage";
+
+// Variable para almacenar el tiempo anterior
+unsigned long tiempoAnterior = 0;
+// Intervalo de tiempo deseado para "Intensidad de señal"
+// Cada 10s se monitoriza la intensidad de la señal
+const unsigned long intervalo = 60000;
 
 // configura los pines del sensor DHT11 //
 const int DHTTYPE = DHT11;
 const int DHTPIN = D4;
 DHT dht(DHTPIN, DHTTYPE);
 
+// Pin analógico conectado al sensor de humedad del suelo (ejemplo: GPIO32)
+const int analogPin = A0;
+// Calibracion del sensor capacitivo: Aire-Agua
+const int HumedityMin = 257;
+const int Humeditymax = 646;
+
 // configura los pines del LED RGB //
-const int pinRojo = D5;
-const int pinAzul = D6;
-const int pinVerde = D7;
+const int pinRojo = D7;
+const int pinVerde = D6;
+const int pinAzul = D5;
 
 /*
 ///////////////// DECLARACION DE FUNCIONES \\\\\\\\\\\\\\\\\
@@ -74,29 +87,61 @@ void loop() {
   commandLED(1023, 0, 1023, pinRojo, pinVerde, pinAzul);
   digitalWrite(LED_BUILTIN, LOW);
   // lee la temperatura del sensor
-  float temperature = dht.readTemperature();
+  float temperatureDHT = dht.readTemperature();
 
   // lee la humedad del sensor
-  float humidity = dht.readHumidity();
+  float humidityDHT = dht.readHumidity();
   digitalWrite(LED_BUILTIN, HIGH);
+
+  // Lectura de la humedad del suelo
+  int sensorValue = analogRead(analogPin);
+  int humidityCapacitor = 100 - map(sensorValue, HumedityMin, Humeditymax, 0, 100);
+  // Conversión a voltaje (rango de 0 a 3.3V)
+  float voltage = sensorValue * (3.3 / 1023.0);
   commandLED(0, 20, 0, pinRojo, pinVerde, pinAzul);
 
-  Serial.print("Temperatura: ");
-  Serial.print(temperature);
-  Serial.print(" °C, Humedad: ");
-  Serial.print(humidity);
-  Serial.println(" %");
+  // Serial.print("Temperatura: ");
+  // Serial.print(temperatureDHT);
+  // Serial.print(" °C, Humedad: ");
+  // Serial.print(humidityDHT);
+  // Serial.println(" %");
+
+  // Serial.print("% humedad: ");
+  // Serial.print(humidityCapacitor);
+  // Serial.print("%");
+  // Serial.print(", Voltaje: ");
+  // Serial.print(voltage, 2);
+  // Serial.println("V");
 
   // usa el formato json para enviar datos
-  StaticJsonDocument<64> doc;
-  doc["temperatura"] = temperature;
-  doc["humedad"] = humidity;
+  StaticJsonDocument<64> params;
+  params["temperatura_dht"] = temperatureDHT;
+  params["humedad_dht"] = humidityDHT;
+  params["humedad_capacitor"] = humidityCapacitor;
 
-  String jsonString;
-  serializeJson(doc, jsonString);
+  String jsonStringParams;
+  serializeJson(params, jsonStringParams);
 
   // publica los datos mediante protocolo MQTT
-  client.publish(mqtt_topic, (char*)jsonString.c_str());
+  client.publish(mqtt_topic_params, (char*)jsonStringParams.c_str());
+
+  if (millis() - tiempoAnterior >= intervalo) {
+    tiempoAnterior = millis();
+
+    int rssi = WiFi.RSSI();
+    // Serial.print("Intensidad de señal: ");
+    // Serial.print(rssi);
+    // Serial.println(" dBm");
+
+    StaticJsonDocument<64> coverage;
+    coverage["dBm"] = rssi;
+
+    String jsonStringCoverage;
+    serializeJson(coverage, jsonStringCoverage);
+
+    // publica los datos mediante protocolo MQTT
+    client.publish(mqtt_topic_coverage, (char*)jsonStringCoverage.c_str());
+  }
 
   // espera 30 segundos
   delay(30000);
